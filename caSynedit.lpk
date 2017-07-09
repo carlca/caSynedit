@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <Name Value="caSynedit"/>
+    <Type Value="RunAndDesignTime"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Version Major="1"/>
+    <Files Count="4">
+      <Item1>
+        <Filename Value="casyncolorgrid.pas"/>
+        <UnitName Value="casyncolorgrid"/>
+      </Item1>
+      <Item2>
+        <Filename Value="casynconfig.pas"/>
+        <UnitName Value="casynconfig"/>
+      </Item2>
+      <Item3>
+        <Filename Value="casynhighlightergolang.pas"/>
+        <UnitName Value="casynhighlightergolang"/>
+      </Item3>
+      <Item4>
+        <Filename Value="casyneditreg.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="casyneditreg"/>
+      </Item4>
+    </Files>
+    <RequiredPkgs Count="3">
+      <Item1>
+        <PackageName Value="SynEdit"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="caLibrary"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="FCL"/>
+      </Item3>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+    <CustomOptions Items="ExternHelp" Version="2">
+      <_ExternHelp Items="Count"/>
+    </CustomOptions>
+  </Package>
+</CONFIG>
