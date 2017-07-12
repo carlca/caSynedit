@@ -62,7 +62,6 @@ type
     procedure AddRows;
     procedure AddRow(const ARowTitle: string);
     procedure AddTitles;
-    procedure ClearChildControls;
     procedure ColorChangedEvent(Sender: TObject);
     procedure CreatePopupMenu;
     procedure EditChangedEvent(Sender: TObject);
@@ -164,7 +163,6 @@ end;
 
 destructor TcaSynColorGrid.Destroy;
 begin
-  ClearChildControls;
   FData.Free;
   FMenu.Free;
   FColorConfig.Free;
@@ -200,7 +198,7 @@ function TcaSynColorGrid.CreateLabel(const ACaption: string): TLabel;
 var
   Lbl: TLabel;
 begin
-  Lbl := TLabel.Create(nil);
+  Lbl := TLabel.Create(Self);
   Lbl.AutoSize := False;
   Lbl.Parent := Self;
   Lbl.Caption := ACaption;
@@ -211,7 +209,7 @@ function TcaSynColorGrid.CreateColorButton: TColorButton;
 var
   Btn: TColorButton;
 begin
-  Btn := TColorButton.Create(nil);
+  Btn := TColorButton.Create(Self);
   Btn.Parent := Self;
   Btn.PopupMenu := FMenu;
   Btn.OnColorChanged := @ColorChangedEvent;
@@ -222,7 +220,7 @@ function TcaSynColorGrid.CreateCheckBox: TCheckBox;
 var
   Chk: TCheckBox;
 begin
-  Chk := TCheckBox.Create(nil);
+  Chk := TCheckBox.Create(Self);
   Chk.Parent := Self;
   Chk.Caption := '';
   Result := Chk;
@@ -269,7 +267,7 @@ function TcaSynColorGrid.CreateEdit: TcaRGBSpinEdit;
 var
   Edit: TcaRGBSpinEdit;
 begin
-  Edit := TcaRGBSpinEdit.Create(nil);
+  Edit := TcaRGBSpinEdit.Create(Self);
   Edit.Parent := Self;
   Edit.ColorValue := clBlack;
   Edit.OnEditChanged := @EditChangedEvent;
@@ -414,19 +412,6 @@ procedure TcaSynColorGrid.SetRowCount(AValue: Integer);
 begin
   if FData.RowCount = AValue then Exit;
   FData.RowCount := AValue;
-end;
-
-procedure TcaSynColorGrid.ClearChildControls;
-var
-  ACol, ARow: Integer;
-begin
-  for ACol := 0 to Pred(ColCount) do
-    for ARow := 0 to Pred(RowCount) do
-      if FData.Objects[ACol, ARow] is TControl then
-        begin
-          TControl(FData.Objects[ACol, ARow]).Free;
-          FData.Objects[ACol, ARow] := nil;
-        end;
 end;
 
 function TcaSynColorGrid.GetColorConfig: TcaSynConfig;
