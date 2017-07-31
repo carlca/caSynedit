@@ -32,7 +32,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, ExtCtrls, StdCtrls, Graphics, Dialogs, Menus,
-  cargbspinedit, caMatrix, TypInfo, casynconfig;
+  cargbspinedit, caMatrix, TypInfo, casynconfig, caDbg;
 
 const
   cRGBWidth = 110;
@@ -50,6 +50,8 @@ type
     FCopy: TMenuItem;
     FPaste: TMenuItem;
     FCopiedColor: TColor;
+    FOnColorGridChanged: TNotifyEvent;
+    FUpdating: Boolean;
     // private methods
     function ColorButtonToEdit(Btn: TColorButton): TcaRGBSpinEdit;
     function CreateEdit: TcaRGBSpinEdit;
@@ -80,10 +82,12 @@ type
   protected
     property ColCount: Integer read GetColCount write SetColCount;
     property RowCount: Integer read GetRowCount write SetRowCount;
+    procedure DoColorGridChanged; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property ColorConfig: TcaSynConfig read GetColorConfig write SetColorConfig;
+    property OnColorGridChanged: TNotifyEvent read FOnColorGridChanged write FOnColorGridChanged;
   end;
 
 implementation
@@ -150,7 +154,6 @@ end;
 constructor TcaSynColorGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FColorConfig := TcaSynConfig.Create;
   FData := TcaMatrix.Create(nil);
   ColCount := 7;
   RowCount := 0;
@@ -165,7 +168,6 @@ destructor TcaSynColorGrid.Destroy;
 begin
   FData.Free;
   FMenu.Free;
-  FColorConfig.Free;
   inherited;
 end;
 
@@ -282,6 +284,8 @@ begin
   Btn := TColorButton(Sender);
   Edit := ColorButtonToEdit(Btn);
   Edit.ColorValue := Btn.ButtonColor;
+  if not FUpdating then
+    DoColorGridChanged;
 end;
 
 procedure TcaSynColorGrid.CreatePopupMenu;
@@ -305,6 +309,7 @@ begin
   Edit := TcaRGBSpinEdit(Sender);
   ColorBtn := EditToColorButton(Edit);
   ColorBtn.ButtonColor := Edit.ColorValue;
+  DoColorGridChanged;
 end;
 
 procedure TcaSynColorGrid.OnCopyClick(Sender: TObject);
@@ -321,6 +326,7 @@ var
 begin
   ColorBtn := TColorButton(FMenu.PopupComponent);
   ColorBtn.ButtonColor := FCopiedColor;
+  DoColorGridChanged;
 end;
 
 procedure TcaSynColorGrid.AddTitles;
@@ -414,9 +420,14 @@ begin
   FData.RowCount := AValue;
 end;
 
-function TcaSynColorGrid.GetColorConfig: TcaSynConfig;
+procedure TcaSynColorGrid.DoColorGridChanged;
 begin
   UpdateConfig;
+  if Assigned(FOnColorGridChanged) then FOnColorGridChanged(Self);
+end;
+
+function TcaSynColorGrid.GetColorConfig: TcaSynConfig;
+begin
   Result := FColorConfig;
 end;
 
@@ -439,16 +450,21 @@ var
   ForeColor, BackColor: TColor;
   Italic, Bold: Boolean;
 begin
-  for ConfigType := Low(TcaSynConfigType) to High(TcaSynConfigType) do
-    begin
-      FColorConfig.GetRow(ConfigType, Italic, Bold, ForeColor, BackColor);
-      SetRow(ConfigType, Italic, Bold, ForeColor, BackColor);
-    end;
+  FUpdating := True;
+  try
+    for ConfigType := Low(TcaSynConfigType) to High(TcaSynConfigType) do
+      begin
+        FColorConfig.GetRow(ConfigType, Italic, Bold, ForeColor, BackColor);
+        SetRow(ConfigType, Italic, Bold, ForeColor, BackColor);
+      end;
+  finally
+    FUpdating := False;
+  end;
 end;
 
 procedure TcaSynColorGrid.SetColorConfig(AValue: TcaSynConfig);
 begin
-  FColorConfig.Assign(AValue);
+  FColorConfig := AValue;
   UpdateFromConfig;
 end;
 

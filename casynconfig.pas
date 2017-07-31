@@ -32,7 +32,7 @@ unit casynconfig;
 interface
 
 uses
-  Classes, SysUtils, TypInfo, Graphics, caMatrix, cajsonconfig, cadbg;
+  Classes, SysUtils, TypInfo, Graphics, caMatrix, cajsonconfig, cadbg, caconsts, cautils;
 
 type
 
@@ -74,6 +74,7 @@ type
     procedure SaveConfig(const AConfigPath: string);
     procedure SetRow(AConfigType: TcaSynConfigType; AItalic, ABold: Boolean; AForeColor, ABackColor: TColor);
     procedure GetRow(AConfigType: TcaSynConfigType; var AItalic, ABold: Boolean; var AForeColor, ABackColor: TColor);
+    procedure Dbg;
     property OnChanged: TNotifyEvent read FOnChanged write FOnChanged;
   end;
 
@@ -218,6 +219,27 @@ begin
   FData.Booleans[Cols.Bold, Ord(AConfigType)] := ABold;
   FData.UInt32s[Cols.ForeColor, Ord(AConfigType)] := AForeColor;
   FData.UInt32s[Cols.BackColor, Ord(AConfigType)] := ABackColor;
+end;
+
+type
+  SU = class(StringUtils);
+
+procedure TcaSynConfig.Dbg;
+var
+  ConfigType: TcaSynConfigType;
+  S: string;
+  Spc: string;
+begin
+  Spc := SU.BuildString(#32, 20);
+  for ConfigType := Low(TcaSynConfigType) to High(TcaSynConfigType) do
+    begin
+      S := SU.Left(FData.Strings[Cols.Attribute, Ord(ConfigType)] + Spc, 14) + cTab +
+           SU.Left(SU.BooleanToString(FData.Booleans[Cols.Italic, Ord(ConfigType)]) + Spc, 6) + cTab +
+           SU.Left(SU.BooleanToString(FData.Booleans[Cols.Bold, Ord(ConfigType)]) + Spc, 6) + cTab +
+           SU.Left(ColorToString(FData.UInt32s[Cols.ForeColor, Ord(ConfigType)]) + Spc, 10) + cTab +
+           SU.Left(ColorToString(FData.UInt32s[Cols.BackColor, Ord(ConfigType)]) + Spc, 10);
+      caDbg.Dbg(S);
+    end;
 end;
 
 end.
